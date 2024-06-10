@@ -1,12 +1,16 @@
-import React from "react";
-import { NavigationContainer, useIsFocused } from "@react-navigation/native";
+import React, { useEffect, useState } from "react";
+import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { TamaguiProvider, createTamagui } from "tamagui";
+import "@tamagui/core/reset.css";
+import config from "@tamagui/config/v3";
+
+import { Session } from "@supabase/supabase-js";
+import { supabase } from "./utils/supabase";
 
 import ExpenseFormScreen from "./screens/ExpenseFormScreen";
 import HomeScreen from "./screens/HomeScreen";
-import "@tamagui/core/reset.css";
-import { TamaguiProvider, View, createTamagui, Button, Text } from "tamagui";
-import config from "@tamagui/config/v3";
+import Auth from "./components/Auth";
 
 const tamaguiConfig = createTamagui(config);
 
@@ -15,50 +19,42 @@ declare module "@tamagui/core" {
   interface TamaguiCustomConfig extends Conf {}
 }
 
-import { StyleSheet } from "react-native";
-
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+  const [session, setSession] = useState<Session | null>(null);
+
+  useEffect(() => {
+    const getSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      setSession(session);
+    };
+    getSession();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (_, session) => {
+        setSession(session);
+      }
+    );
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
   return (
     <TamaguiProvider config={tamaguiConfig}>
-      <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen name="Home" component={HomeScreen} />
-          <Stack.Screen name="ExpenseForm" component={ExpenseFormScreen} />
-        </Stack.Navigator>
-      </NavigationContainer>
+      {session && session.user ? (
+        <NavigationContainer>
+          <Stack.Navigator>
+            <Stack.Screen name="Home" component={HomeScreen} />
+            <Stack.Screen name="ExpenseForm" component={ExpenseFormScreen} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      ) : (
+        <Auth />
+      )}
     </TamaguiProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    marginVertical: 0,
-    justifyContent: "center",
-    marginBottom: 32,
-    paddingHorizontal: 8,
-    paddingVertical: 8,
-  },
-  item: {
-    backgroundColor: "#eee",
-    padding: 10,
-    marginVertical: 6,
-  },
-  sectionHeader: {
-    backgroundColor: "#f4f4f4",
-    paddingTop: 20,
-    paddingBottom: 20,
-    paddingHorizontal: 12,
-  },
-  headerText: {
-    fontSize: 17,
-    fontWeight: "bold",
-  },
-  listContainer: {
-    maxHeight: 600,
-    minHeight: 300,
-  },
-});

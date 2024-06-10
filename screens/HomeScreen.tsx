@@ -14,9 +14,9 @@ interface GroupedExpenseItem {
 
 const groupByMonth = (items: ExpenseItem[]) => {
   return items.reduce((acc, item) => {
-    const month = item.date.getMonth() + 1; // getMonth is zero-based
+    const month = item.date.toLocaleString("default", { month: "long" });
     const year = item.date.getFullYear();
-    const key = `${year}-${month.toString().padStart(2, "0")}`; // Format: YYYY-MM
+    const key = `${month.toString().padStart(2, "0")}, ${year}`;
 
     if (!acc[key]) {
       acc[key] = { totalAmount: 0, expenses: [] };
