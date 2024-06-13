@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { TextInput } from "react-native";
+import { TextInput, StyleSheet } from "react-native";
 import CurrencyInput from "react-native-currency-input";
 import DropDownPicker, { ValueType } from "react-native-dropdown-picker";
 import { useStore } from "../utils/useStore";
-import { Button, View } from "tamagui";
+import { Button, View, Text } from "tamagui";
+import { supabase } from "../utils/supabase";
 
 type FormValues = {
   title: string;
@@ -21,7 +22,13 @@ const categories = [
   { label: "Charity", value: "charity" },
 ];
 
-function ExpenseFormScreen({ navigation }: { navigation: any }) {
+function ExpenseFormScreen({
+  navigation,
+  route,
+}: {
+  navigation: any;
+  route: any;
+}) {
   const {
     control,
     handleSubmit,
@@ -29,32 +36,36 @@ function ExpenseFormScreen({ navigation }: { navigation: any }) {
     watch,
     formState: { errors },
   } = useForm<FormValues>();
+  const { userData } = route.params;
   const addExpense = useStore((state: any) => state.addExpense);
 
   const [open, setOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  const [newTag, setNewTag] = useState("");
-
   useEffect(() => {
-    setValue("category", selectedCategory);
-  }, [selectedCategory, setValue]);
+    setValue("category", selectedCategory ?? "");
+  }, []);
 
   const onSubmit = (data: FormValues) => {
-    addExpense(data.title, data.amount, data.category);
+    console.log(
+      "onSubmit",
+      data.title,
+      data.amount,
+      data.category,
+      userData.id
+    );
+    addExpense({
+      uid: userData.id,
+      title: data.title,
+      amount: data.amount,
+      category: data.category,
+    });
     navigation.goBack();
   };
 
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-      <View
-        style={{
-          flex: 1,
-          alignItems: "center",
-          justifyContent: "center",
-          marginBottom: 120,
-        }}
-      >
+      <View style={styles.titleContainer}>
         <Controller
           name="title"
           control={control}
@@ -63,7 +74,7 @@ function ExpenseFormScreen({ navigation }: { navigation: any }) {
               placeholder="Title"
               value={value}
               onChangeText={onChange}
-              style={{ fontSize: 32, marginBottom: 20 }}
+              style={styles.input}
             />
           )}
         />
@@ -80,17 +91,11 @@ function ExpenseFormScreen({ navigation }: { navigation: any }) {
               minValue={0}
               value={value}
               onChangeValue={onChange}
-              style={{ fontSize: 32, marginBottom: 20 }}
+              style={styles.input}
             />
           )}
         />
-        <View
-          style={{
-            flex: 1,
-            flexDirection: "row",
-            paddingHorizontal: 40,
-          }}
-        >
+        <View>
           <Controller
             name="category"
             control={control}
@@ -100,29 +105,45 @@ function ExpenseFormScreen({ navigation }: { navigation: any }) {
                 value={value}
                 items={categories}
                 setOpen={setOpen}
+                maxHeight={180}
                 setValue={(callback) => {
                   const newSelectedCategory = callback(selectedCategory);
                   setSelectedCategory(newSelectedCategory);
                   onChange(newSelectedCategory);
                 }}
+                textStyle={{ fontSize: 13 }}
                 onChangeValue={onChange}
-                multiple={true}
                 placeholder="Select or add tags"
-                searchable={true}
                 searchPlaceholder="search for category"
-                style={{ width: "80%", marginHorizontal: "10%" }}
+                style={styles.dropDownPicker}
               />
             )}
           />
-          {/* <Button onPress={addNewTag}>add tag</Button> */}
         </View>
       </View>
 
-      <View style={{ flex: 1, alignItems: "center", marginBottom: 80 }}>
+      <View style={{ flex: 1, alignItems: "center", marginBottom: 40 }}>
         <Button onPress={handleSubmit(onSubmit)}>Add new expense</Button>
       </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  titleContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 120,
+  },
+  input: {
+    fontSize: 32,
+    marginBottom: 20,
+  },
+  dropDownPicker: {
+    width: "80%",
+    marginHorizontal: "10%",
+  },
+});
 
 export default ExpenseFormScreen;

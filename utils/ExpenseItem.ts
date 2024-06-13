@@ -1,8 +1,8 @@
 export type ExpenseItem = {
+  id: number;
   uid: string;
-  id: string;
   title: string;
   amount: number;
-  date: Date;
-  tags?: string[];
+  created_at: Date;
+  category: string;
 };

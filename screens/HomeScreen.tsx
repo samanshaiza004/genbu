@@ -7,15 +7,18 @@ import { formatter } from "../utils/formatter";
 import ExpenseItemCard from "../components/ExpenseItemCard";
 import { Text, Button } from "tamagui";
 import { StatusBar } from "expo-status-bar";
+import { supabase } from "../utils/supabase";
 interface GroupedExpenseItem {
   totalAmount: number;
   expenses: ExpenseItem[];
 }
 
 const groupByMonth = (items: ExpenseItem[]) => {
-  return items.reduce((acc, item) => {
-    const month = item.date.toLocaleString("default", { month: "long" });
-    const year = item.date.getFullYear();
+  return Array.from(items).reduce((acc, item) => {
+    const month = new Date(item.created_at).toLocaleString("default", {
+      month: "long",
+    });
+    const year = new Date(item.created_at).getFullYear();
     const key = `${month.toString().padStart(2, "0")}, ${year}`;
 
     if (!acc[key]) {
@@ -42,35 +45,68 @@ export default function HomeScreen({ navigation }: { navigation: any }) {
   const [groupedExpenses, setGroupedExpenses] = useState<
     { title: string; data: ExpenseItem[] }[]
   >([]);
+  const fetchExpenses = useStore((state: any) => state.fetchExpenses);
 
   const isFocused = useIsFocused();
-  const expenses = useStore((state: any) => state.expenses);
+  const [expenses, setExpenses] = useState<ExpenseItem[]>([]);
+  const balance = useStore((state: any) => state.income);
+  const totalExpenses = Array.from(expenses).reduce(
+    (total: number, expense: any) => total + expense.amount,
+    0
+  );
+  const remainingIncome = balance - totalExpenses;
   useEffect(() => {
+    const fetchAndSetExpenses = async () => {
+      const fetchedExpenses = await fetchExpenses();
+      setExpenses(fetchedExpenses);
+      setGroupedExpenses(
+        transformGroupedExpenses(groupByMonth(fetchedExpenses))
+      );
+    };
+
+    console.log(expenses);
     if (isFocused) {
-      setGroupedExpenses(transformGroupedExpenses(groupByMonth(expenses)));
+      fetchAndSetExpenses();
     }
-  }, [isFocused]);
+  }, [isFocused, fetchExpenses]);
   return (
     <View style={styles.container}>
-      <View style={styles.listContainer}>
-        <SectionList
-          sections={groupedExpenses}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <ExpenseItemCard item={item} />}
-          renderSectionHeader={({ section: { title, totalAmount } }) => (
-            <View style={styles.sectionHeader}>
-              <Text style={styles.headerText}>{title}</Text>
-              <Text style={styles.headerText}>
-                {formatter.format(totalAmount)}
-              </Text>
-            </View>
-          )}
-        />
+      <View style={{ marginBottom: 40 }}>
+        <Text>balance: {formatter.format(balance)}</Text>
+        <Text>expenses: {formatter.format(totalExpenses)}</Text>
+        <Text>remaining balance: {formatter.format(remainingIncome)}</Text>
       </View>
+      <View style={styles.incomeContainer}>
+        <Button onPress={() => navigation.navigate("IncomeForm")}>
+          Add balance
+        </Button>
+      </View>
+      {balance > 0 ? (
+        <View>
+          <View style={styles.listContainer}>
+            <SectionList
+              sections={groupedExpenses}
+              keyExtractor={(item) => item.id as unknown as string}
+              renderItem={({ item }) => <ExpenseItemCard item={item} />}
+              renderSectionHeader={({ section: { title, totalAmount } }) => (
+                <View style={styles.sectionHeader}>
+                  <Text style={styles.headerText}>{title}</Text>
+                  <Text style={styles.headerText}>
+                    {formatter.format(totalAmount)}
+                  </Text>
+                </View>
+              )}
+            />
+          </View>
 
-      <Button onPress={() => navigation.navigate("ExpenseForm")}>
-        Add expense
-      </Button>
+          <Button onPress={() => navigation.navigate("ExpenseForm")}>
+            Add expense
+          </Button>
+        </View>
+      ) : (
+        <Text>No income or expenses</Text>
+      )}
+
       <StatusBar style="auto" />
     </View>
   );
@@ -102,7 +138,10 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   listContainer: {
-    maxHeight: 600,
+    maxHeight: 450,
     minHeight: 300,
+  },
+  incomeContainer: {
+    marginBottom: 40,
   },
 });

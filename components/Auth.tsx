@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { supabase } from "../utils/supabase";
 import { Alert, StyleSheet, TextInput } from "react-native";
-import { View, Input, Button } from "tamagui";
+import { View, Input, Button, Text } from "tamagui";
 
 export default function Auth() {
   const [email, setEmail] = useState("");
@@ -9,34 +9,43 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
 
   async function signInWithEmail() {
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
+    try {
+      setLoading(true);
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) {
+        throw new Error(error.message);
+      }
+    } catch (error: any) {
       Alert.alert(error.message);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   async function signUpWithEmail() {
-    setLoading(true);
-    const {
-      data: { session },
-      error,
-    } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-
-    if (error) {
+    try {
+      setLoading(true);
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+      if (error) {
+        throw new Error(error.message);
+      }
+      if (!session) {
+        throw new Error("check your email for a confirmation link");
+      }
+    } catch (error: any) {
       Alert.alert(error.message);
-    } else if (!session) {
-      Alert.alert("Please check your email for the confirmation link");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   return (
@@ -51,7 +60,7 @@ export default function Auth() {
         />
       </View>
       <View style={styles.verticallySpaced}>
-        <TextInput
+        <Input
           onChangeText={setPassword}
           value={password}
           placeholder="password"
@@ -59,16 +68,23 @@ export default function Auth() {
           secureTextEntry
         />
       </View>
-      <View style={styles.verticallySpaced}>
-        <Button disabled={loading} onPress={signInWithEmail}>
-          Sign in
-        </Button>
-      </View>
-      <View style={styles.verticallySpaced}>
-        <Button disabled={loading} onPress={signUpWithEmail}>
-          Sign up
-        </Button>
-      </View>
+
+      {loading ? (
+        <Text>loading...</Text>
+      ) : (
+        <View>
+          <View style={styles.verticallySpaced}>
+            <Button disabled={loading} onPress={signInWithEmail}>
+              Sign in
+            </Button>
+          </View>
+          <View style={styles.verticallySpaced}>
+            <Button disabled={loading} onPress={signUpWithEmail}>
+              Sign up
+            </Button>
+          </View>
+        </View>
+      )}
     </View>
   );
 }

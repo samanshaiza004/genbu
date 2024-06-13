@@ -11,6 +11,7 @@ import { supabase } from "./utils/supabase";
 import ExpenseFormScreen from "./screens/ExpenseFormScreen";
 import HomeScreen from "./screens/HomeScreen";
 import Auth from "./components/Auth";
+import IncomeFormScreen from "./screens/IncomeFormScreen";
 
 const tamaguiConfig = createTamagui(config);
 
@@ -38,6 +39,7 @@ export default function App() {
         setSession(session);
       }
     );
+
     return () => {
       authListener.subscription.unsubscribe();
     };
@@ -49,7 +51,12 @@ export default function App() {
         <NavigationContainer>
           <Stack.Navigator>
             <Stack.Screen name="Home" component={HomeScreen} />
-            <Stack.Screen name="ExpenseForm" component={ExpenseFormScreen} />
+            <Stack.Screen
+              name="ExpenseForm"
+              component={ExpenseFormScreen}
+              initialParams={{ userData: session.user }}
+            />
+            <Stack.Screen name="IncomeForm" component={IncomeFormScreen} />
           </Stack.Navigator>
         </NavigationContainer>
       ) : (
