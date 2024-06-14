@@ -33,7 +33,7 @@ function ExpenseFormScreen({
     control,
     handleSubmit,
     setValue,
-    watch,
+
     formState: { errors },
   } = useForm<FormValues>();
   const { userData } = route.params;
@@ -47,13 +47,6 @@ function ExpenseFormScreen({
   }, []);
 
   const onSubmit = (data: FormValues) => {
-    console.log(
-      "onSubmit",
-      data.title,
-      data.amount,
-      data.category,
-      userData.id
-    );
     addExpense({
       uid: userData.id,
       title: data.title,

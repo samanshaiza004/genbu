@@ -7,7 +7,6 @@ import { formatter } from "../utils/formatter";
 import ExpenseItemCard from "../components/ExpenseItemCard";
 import { Text, Button } from "tamagui";
 import { StatusBar } from "expo-status-bar";
-import { supabase } from "../utils/supabase";
 interface GroupedExpenseItem {
   totalAmount: number;
   expenses: ExpenseItem[];
@@ -49,22 +48,18 @@ export default function HomeScreen({ navigation }: { navigation: any }) {
 
   const isFocused = useIsFocused();
   const [expenses, setExpenses] = useState<ExpenseItem[]>([]);
-  const balance = useStore((state: any) => state.income);
+  const balance = useStore((state: any) => state.balance);
   const totalExpenses = Array.from(expenses).reduce(
     (total: number, expense: any) => total + expense.amount,
     0
   );
+  const fetchAndSetExpenses = async () => {
+    const fetchedExpenses = await fetchExpenses();
+    setExpenses(fetchedExpenses);
+    setGroupedExpenses(transformGroupedExpenses(groupByMonth(fetchedExpenses)));
+  };
   const remainingIncome = balance - totalExpenses;
   useEffect(() => {
-    const fetchAndSetExpenses = async () => {
-      const fetchedExpenses = await fetchExpenses();
-      setExpenses(fetchedExpenses);
-      setGroupedExpenses(
-        transformGroupedExpenses(groupByMonth(fetchedExpenses))
-      );
-    };
-
-    console.log(expenses);
     if (isFocused) {
       fetchAndSetExpenses();
     }
@@ -87,7 +82,9 @@ export default function HomeScreen({ navigation }: { navigation: any }) {
             <SectionList
               sections={groupedExpenses}
               keyExtractor={(item) => item.id as unknown as string}
-              renderItem={({ item }) => <ExpenseItemCard item={item} />}
+              renderItem={({ item }) => (
+                <ExpenseItemCard item={item} onDelete={fetchAndSetExpenses} />
+              )}
               renderSectionHeader={({ section: { title, totalAmount } }) => (
                 <View style={styles.sectionHeader}>
                   <Text style={styles.headerText}>{title}</Text>
@@ -104,7 +101,7 @@ export default function HomeScreen({ navigation }: { navigation: any }) {
           </Button>
         </View>
       ) : (
-        <Text>No income or expenses</Text>
+        <Text>please set your balance</Text>
       )}
 
       <StatusBar style="auto" />

@@ -1,10 +1,32 @@
 import { create } from "zustand";
 import { supabase } from "./supabase";
 import { ExpenseItem } from "./ExpenseItem";
-export const useStore = create((set) => ({
+
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const BALANCE_KEY = "balance";
+
+export const useStore = create((set: any) => ({
   expenses: [],
-  income: 0,
-  setIncome: (income: number) => set({ income }),
+  balance: 0,
+  setBalance: async (balance: number) => {
+    try {
+      await AsyncStorage.setItem(BALANCE_KEY, balance.toString());
+      set({ balance });
+    } catch (error) {
+      console.error("Failed to save balance to AsyncStorage", error);
+    }
+  },
+  loadBalance: async () => {
+    try {
+      const balance = await AsyncStorage.getItem(BALANCE_KEY);
+      if (balance !== null) {
+        set({ balance: Number(balance) });
+      }
+    } catch (error) {
+      console.error("Failed to load balance from AsyncStorage", error);
+    }
+  },
   fetchExpenses: async () => {
     const { data, error } = await supabase.from("expenses").select("*");
     if (error) {
@@ -20,13 +42,17 @@ export const useStore = create((set) => ({
       if (error) {
         throw new Error(error.message);
       }
+      set((state: any) => ({
+        expenses: state.expenses.filter(
+          (expense: ExpenseItem) => expense.id !== Number(id)
+        ),
+      }));
     } catch (error) {
       console.error(error);
     }
   },
   addExpense: async ({ uid, title, amount, category }: ExpenseItem) => {
     try {
-      console.log("addExpense", uid, title, amount, category);
       const { error } = await supabase.from("expenses").insert({
         uid: uid,
         title: title,
@@ -42,3 +68,5 @@ export const useStore = create((set) => ({
     }
   },
 }));
+
+useStore.getState().loadBalance();

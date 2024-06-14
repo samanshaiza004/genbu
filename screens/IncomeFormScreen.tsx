@@ -5,15 +5,15 @@ import { StyleSheet } from "react-native";
 import CurrencyInput from "react-native-currency-input";
 
 type FormValues = {
-  income: number;
+  balance: number;
 };
 
 function IncomeFormScreen({ navigation }: { navigation: any }) {
   const { control, handleSubmit } = useForm<FormValues>();
-  const setIncome = useStore((state: any) => state.setIncome);
+  const setBalance = useStore((state: any) => state.setBalance);
 
   const onSubmit = (data: FormValues) => {
-    setIncome(data.income);
+    setBalance(data.balance);
     navigation.goBack();
   };
 
@@ -23,7 +23,7 @@ function IncomeFormScreen({ navigation }: { navigation: any }) {
         <Text>set your total balance in all your accounts</Text>
       </View>
       <Controller
-        name="income"
+        name="balance"
         control={control}
         render={({ field: { onChange, value } }) => (
           <CurrencyInput
@@ -40,7 +40,7 @@ function IncomeFormScreen({ navigation }: { navigation: any }) {
         )}
       />
       <Button onPress={handleSubmit(onSubmit)} style={{ marginBottom: 520 }}>
-        set income
+        set balance
       </Button>
     </View>
   );
