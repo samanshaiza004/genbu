@@ -12,6 +12,7 @@ import ExpenseFormScreen from "./screens/ExpenseFormScreen";
 import HomeScreen from "./screens/HomeScreen";
 import Auth from "./components/Auth";
 import IncomeFormScreen from "./screens/IncomeFormScreen";
+import DistributionForm from "./screens/DistributionFormScreen";
 
 const tamaguiConfig = createTamagui(config);
 
@@ -50,13 +51,21 @@ export default function App() {
       {session && session.user ? (
         <NavigationContainer>
           <Stack.Navigator>
-            <Stack.Screen name="Home" component={HomeScreen} />
+            <Stack.Screen
+              name="Home"
+              component={HomeScreen}
+              initialParams={{ userData: session.user }}
+            />
             <Stack.Screen
               name="ExpenseForm"
               component={ExpenseFormScreen}
               initialParams={{ userData: session.user }}
             />
             <Stack.Screen name="IncomeForm" component={IncomeFormScreen} />
+            <Stack.Screen
+              name="DistributionForm"
+              component={DistributionForm}
+            />
           </Stack.Navigator>
         </NavigationContainer>
       ) : (

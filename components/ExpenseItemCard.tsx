@@ -18,11 +18,11 @@ export default function ExpenseItemCard({
   const date = new Date(item.created_at);
   return (
     <XStack flex={1} style={styles.item}>
-      <View>
+      <View style={styles.titleAndAmount}>
         <Text>{item.title}</Text>
         <Text>{amount}</Text>
       </View>
-      <View style={{ marginLeft: 128 }}>
+      <View style={styles.categoryAndDate}>
         <Text>{item.category}</Text>
         <Text>
           {date.toLocaleDateString("en-us", {
@@ -32,7 +32,7 @@ export default function ExpenseItemCard({
           })}
         </Text>
       </View>
-      <View>
+      <View style={styles.moreContainer}>
         <PopoverDisplay
           item={item}
           Icon={IconDots}
@@ -126,24 +126,39 @@ export function PopoverDisplay({
             <Text style={styles.titleHeader}>{item.title}</Text>
             <Text style={styles.amountHeader}>{amount}</Text>
           </View>
-          <Text>
-            {date.toLocaleDateString("en-us", {
-              weekday: "long",
-              month: "short",
-              day: "numeric",
-            })}
-          </Text>
-          <Popover.Close asChild>
-            <Button
-              size="$2"
-              onPress={() => {
-                handleDelete();
-              }}
-              style={styles.deleteButton}
-            >
-              delete
-            </Button>
-          </Popover.Close>
+          <View>
+            <Text>
+              {date.toLocaleDateString("en-us", {
+                weekday: "long",
+                month: "short",
+                day: "numeric",
+              })}
+            </Text>
+          </View>
+          <View style={styles.deleteButtonContainer}>
+            <Popover.Close asChild>
+              <Button
+                size="$2"
+                onPress={() => {
+                  Alert.alert("edit expense");
+                }}
+                style={styles.deleteButton}
+              >
+                edit
+              </Button>
+            </Popover.Close>
+            <Popover.Close asChild>
+              <Button
+                size="$2"
+                onPress={() => {
+                  handleDelete();
+                }}
+                style={styles.deleteButton}
+              >
+                delete
+              </Button>
+            </Popover.Close>
+          </View>
         </YStack>
       </Popover.Content>
     </Popover>
@@ -165,6 +180,26 @@ const styles = StyleSheet.create({
     fontWeight: "semibold",
   },
   deleteButton: {
+    minHeight: 45,
+    minWidth: 160,
+    fontWeight: "semibold",
+    fontSize: 16,
+    marginVertical: 4,
+  },
+  categoryAndDate: {
+    alignItems: "flex-end",
+    minWidth: 200,
+    maxWidth: 300,
+  },
+  moreContainer: {
+    marginLeft: 8,
+    minWidth: 50,
+  },
+  titleAndAmount: {
+    minWidth: 100,
+    maxWidth: 125,
+  },
+  deleteButtonContainer: {
     marginTop: 64,
   },
 });

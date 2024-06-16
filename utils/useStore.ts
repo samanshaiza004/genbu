@@ -5,10 +5,19 @@ import { ExpenseItem } from "./ExpenseItem";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const BALANCE_KEY = "balance";
+const DISTRIBUTION_KEY = "distribution";
 
 export const useStore = create((set: any) => ({
   expenses: [],
   balance: 0,
+  distribution: {
+    needs: 0,
+    wants: 0,
+    unexpected: 0,
+    debt: 0,
+    saving: 0,
+    charity: 0,
+  },
   setBalance: async (balance: number) => {
     try {
       await AsyncStorage.setItem(BALANCE_KEY, balance.toString());
@@ -27,14 +36,45 @@ export const useStore = create((set: any) => ({
       console.error("Failed to load balance from AsyncStorage", error);
     }
   },
-  fetchExpenses: async () => {
-    const { data, error } = await supabase.from("expenses").select("*");
+  fetchExpenses: async (uid: string) => {
+    const { data, error } = await supabase
+      .from("expenses")
+      .select("*")
+      .eq("uid", uid);
     if (error) {
       console.error(error);
       return [];
     }
     set({ expenses: data });
     return data;
+  },
+  setDistribution: async (distribution: {
+    needs: number;
+    wants: number;
+    unexpected: number;
+    debt: number;
+    savings: number;
+    charity: number;
+  }) => {
+    try {
+      await AsyncStorage.setItem(
+        DISTRIBUTION_KEY,
+        JSON.stringify(distribution)
+      );
+      set({ distribution });
+    } catch (error) {
+      console.error("Failed to save distribution to AsyncStorage:", error);
+    }
+  },
+  loadDistribution: async () => {
+    try {
+      const distribution = await AsyncStorage.getItem(DISTRIBUTION_KEY);
+      if (distribution !== null) {
+        set({ distribution: JSON.parse(distribution) });
+      }
+    } catch (error) {
+      console.error("Failed to load distribution from AsyncStorage:", error);
+    }
   },
   deleteExpense: async (id: string) => {
     try {
@@ -70,3 +110,4 @@ export const useStore = create((set: any) => ({
 }));
 
 useStore.getState().loadBalance();
+useStore.getState().loadDistribution();

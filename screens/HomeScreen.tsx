@@ -5,15 +5,20 @@ import { useStore } from "../utils/useStore";
 import { ExpenseItem } from "../utils/ExpenseItem";
 import { formatter } from "../utils/formatter";
 import ExpenseItemCard from "../components/ExpenseItemCard";
-import { Text, Button } from "tamagui";
+import { Text, Button, XStack } from "tamagui";
 import { StatusBar } from "expo-status-bar";
+
 interface GroupedExpenseItem {
   totalAmount: number;
   expenses: ExpenseItem[];
 }
 
 const groupByMonth = (items: ExpenseItem[]) => {
-  return Array.from(items).reduce((acc, item) => {
+  const sortedItems = items.sort(
+    (a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
+  return sortedItems.reduce((acc, item) => {
     const month = new Date(item.created_at).toLocaleString("default", {
       month: "long",
     });
@@ -40,11 +45,20 @@ const transformGroupedExpenses = (
   }));
 };
 
-export default function HomeScreen({ navigation }: { navigation: any }) {
+export default function HomeScreen({
+  navigation,
+  route,
+}: {
+  navigation: any;
+  route: any;
+}) {
   const [groupedExpenses, setGroupedExpenses] = useState<
     { title: string; data: ExpenseItem[] }[]
   >([]);
   const fetchExpenses = useStore((state: any) => state.fetchExpenses);
+  const { userData } = route.params;
+
+  const distribution = useStore((state: any) => state.distribution);
 
   const isFocused = useIsFocused();
   const [expenses, setExpenses] = useState<ExpenseItem[]>([]);
@@ -54,7 +68,7 @@ export default function HomeScreen({ navigation }: { navigation: any }) {
     0
   );
   const fetchAndSetExpenses = async () => {
-    const fetchedExpenses = await fetchExpenses();
+    const fetchedExpenses = await fetchExpenses(userData.id);
     setExpenses(fetchedExpenses);
     setGroupedExpenses(transformGroupedExpenses(groupByMonth(fetchedExpenses)));
   };
@@ -66,14 +80,41 @@ export default function HomeScreen({ navigation }: { navigation: any }) {
   }, [isFocused, fetchExpenses]);
   return (
     <View style={styles.container}>
-      <View style={{ marginBottom: 40 }}>
-        <Text>balance: {formatter.format(balance)}</Text>
-        <Text>expenses: {formatter.format(totalExpenses)}</Text>
-        <Text>remaining balance: {formatter.format(remainingIncome)}</Text>
-      </View>
+      <XStack space={16} style={{ marginBottom: 40 }}>
+        <View>
+          <Text>balance: {formatter.format(balance)}</Text>
+          <Text>expenses: {formatter.format(totalExpenses)}</Text>
+          <Text>remaining balance: {formatter.format(remainingIncome)}</Text>
+        </View>
+        <View style={styles.distributionContainer}>
+          <Text>
+            Needs: {formatter.format((balance * distribution.needs) / 100)}
+          </Text>
+          <Text>
+            Wants: {formatter.format((balance * distribution.wants) / 100)}
+          </Text>
+          <Text>
+            Unexpected:{" "}
+            {formatter.format((balance * distribution.unexpected) / 100)}
+          </Text>
+          <Text>
+            Debt: {formatter.format((balance * distribution.debt) / 100)}
+          </Text>
+          <Text>
+            Savings: {formatter.format((balance * distribution.savings) / 100)}
+          </Text>
+          <Text>
+            Charity: {formatter.format((balance * distribution.charity) / 100)}
+          </Text>
+        </View>
+      </XStack>
+
       <View style={styles.incomeContainer}>
         <Button onPress={() => navigation.navigate("IncomeForm")}>
-          Add balance
+          set balance
+        </Button>
+        <Button onPress={() => navigation.navigate("DistributionForm")}>
+          set distribution
         </Button>
       </View>
       {balance > 0 ? (
@@ -141,4 +182,5 @@ const styles = StyleSheet.create({
   incomeContainer: {
     marginBottom: 40,
   },
+  distributionContainer: {},
 });

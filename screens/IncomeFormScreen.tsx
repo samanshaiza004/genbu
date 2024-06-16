@@ -11,9 +11,20 @@ type FormValues = {
 function IncomeFormScreen({ navigation }: { navigation: any }) {
   const { control, handleSubmit } = useForm<FormValues>();
   const setBalance = useStore((state: any) => state.setBalance);
-
+  const setDistribution = useStore((state: any) => state.setDistribution);
   const onSubmit = (data: FormValues) => {
+    const balance = data.balance;
     setBalance(data.balance);
+
+    const distribution = {
+      needs: balance * 0.5,
+      wants: balance * 0.2,
+      unexpected: balance * 0.1,
+      debt: balance * 0.1,
+      savings: balance * 0.05,
+      charity: balance * 0.05,
+    };
+    setDistribution(distribution);
     navigation.goBack();
   };
 

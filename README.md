@@ -8,6 +8,12 @@ Genbu is a minimal and friction-less budget and finance app made with Expo, Zust
 - **Categorize expenses**: Categorize your expenses into predefined categories such as Needs, Wants, Unexpected, Debt, Savings, and Charity.
 - **Monthly income**: Set your monthly balance and track your spending.
 
+## Checklist
+
+[] Monthly checkup
+[] Budgeting pie chart
+[] Settings
+
 ## Contributing
 
 We welcome contributions to improve Genbu.
