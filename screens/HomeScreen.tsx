@@ -13,6 +13,19 @@ interface GroupedExpenseItem {
   expenses: ExpenseItem[];
 }
 
+const groupByCategory = (items: ExpenseItem[]) => {
+  return items.reduce((acc, item) => {
+    const category = item.category;
+    if (!acc[category]) {
+      acc[category] = { totalAmount: 0, expenses: [] };
+    }
+
+    acc[category].totalAmount += item.amount;
+    acc[category].expenses.push(item);
+    return acc;
+  }, {} as Record<string, GroupedExpenseItem>);
+};
+
 const groupByMonth = (items: ExpenseItem[]) => {
   const sortedItems = items.sort(
     (a, b) =>
@@ -138,7 +151,7 @@ export default function HomeScreen({
           </View>
 
           <Button onPress={() => navigation.navigate("ExpenseForm")}>
-            Add expense
+            add expense
           </Button>
         </View>
       ) : (

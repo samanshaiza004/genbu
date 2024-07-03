@@ -106,7 +106,7 @@ function ExpenseFormScreen({
                 }}
                 textStyle={{ fontSize: 13 }}
                 onChangeValue={onChange}
-                placeholder="Select or add tags"
+                placeholder="select or add tags"
                 searchPlaceholder="search for category"
                 style={styles.dropDownPicker}
               />

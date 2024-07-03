@@ -15,6 +15,7 @@ type FormValues = {
 
 export default function DistributionFormScreen({ navigation }: any) {
   const { control, handleSubmit, watch } = useForm<FormValues>();
+  const distribution = useStore((state: any) => state.distribution);
   const setDistribution = useStore((state: any) => state.setDistribution);
 
   const onSubmit = async (data: FormValues) => {
@@ -41,7 +42,7 @@ export default function DistributionFormScreen({ navigation }: any) {
         defaultValue={0}
         render={({ field: { onChange, value } }) => (
           <TextInput
-            placeholder="needs (%)"
+            placeholder={`needs ${distribution.needs} (%)`}
             value={value ? value.toString() : ""}
             onChangeText={(text) => onChange(parseFloat(text))}
             style={styles.input}
@@ -55,7 +56,7 @@ export default function DistributionFormScreen({ navigation }: any) {
         defaultValue={0}
         render={({ field: { onChange, value } }) => (
           <TextInput
-            placeholder="wants (%)"
+            placeholder={`wants ${distribution.wants} (%)`}
             value={value ? value.toString() : ""}
             onChangeText={(text) => onChange(parseFloat(text))}
             style={styles.input}
@@ -69,7 +70,7 @@ export default function DistributionFormScreen({ navigation }: any) {
         defaultValue={0}
         render={({ field: { onChange, value } }) => (
           <TextInput
-            placeholder="unexpected (%)"
+            placeholder={`unexpected ${distribution.unexpected} (%)`}
             value={value ? value.toString() : ""}
             onChangeText={(text) => onChange(parseFloat(text))}
             style={styles.input}
@@ -83,7 +84,7 @@ export default function DistributionFormScreen({ navigation }: any) {
         defaultValue={0}
         render={({ field: { onChange, value } }) => (
           <TextInput
-            placeholder="debt (%)"
+            placeholder={`debt ${distribution.debt} (%)`}
             value={value ? value.toString() : ""}
             onChangeText={(text) => onChange(parseFloat(text))}
             style={styles.input}
@@ -97,7 +98,7 @@ export default function DistributionFormScreen({ navigation }: any) {
         defaultValue={0}
         render={({ field: { onChange, value } }) => (
           <TextInput
-            placeholder="savings (%)"
+            placeholder={`savings ${distribution.savings} (%)`}
             value={value ? value.toString() : ""}
             onChangeText={(text) => onChange(parseFloat(text))}
             style={styles.input}
@@ -111,7 +112,7 @@ export default function DistributionFormScreen({ navigation }: any) {
         defaultValue={0}
         render={({ field: { onChange, value } }) => (
           <TextInput
-            placeholder="charity (%)"
+            placeholder={`charity ${distribution.charity} (%)`}
             value={value ? value.toString() : ""}
             onChangeText={(text) => onChange(parseFloat(text))}
             style={styles.input}
