@@ -58,7 +58,7 @@ export default function DistributionFormScreen({ navigation }: any) {
           <TextInput
             placeholder={`wants ${distribution.wants} (%)`}
             value={value ? value.toString() : ""}
-            onChangeText={(text) => onChange(parseFloat(text))}
+            onChangeText={(text) => onChange(Number.parseFloat(text))}
             style={styles.input}
             keyboardType="numeric"
           />
@@ -72,7 +72,7 @@ export default function DistributionFormScreen({ navigation }: any) {
           <TextInput
             placeholder={`unexpected ${distribution.unexpected} (%)`}
             value={value ? value.toString() : ""}
-            onChangeText={(text) => onChange(parseFloat(text))}
+            onChangeText={(text) => onChange(Number.parseFloat(text))}
             style={styles.input}
             keyboardType="numeric"
           />
