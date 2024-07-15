@@ -6,6 +6,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const BALANCE_KEY = "balance";
 const DISTRIBUTION_KEY = "distribution";
+export const LAST_RESET_DATE_KEY = "lastResetDate";
 
 export const useStore = create((set: any) => ({
   expenses: [],
@@ -35,6 +36,15 @@ export const useStore = create((set: any) => ({
     } catch (error) {
       console.error("Failed to load balance from AsyncStorage", error);
     }
+  },
+  resetMonthlyData: async () => {
+    const currentBalance = 0;
+    await AsyncStorage.setItem(BALANCE_KEY, currentBalance.toString());
+    set({ balance: currentBalance, expenses: [] });
+    await AsyncStorage.setItem(LAST_RESET_DATE_KEY, new Date().toISOString());
+  },
+  resetExpenses: async () => {
+    set({ expenses: [] });
   },
   fetchExpenses: async (uid: string) => {
     const { data, error } = await supabase

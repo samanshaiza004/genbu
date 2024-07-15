@@ -1,12 +1,13 @@
 import { useIsFocused } from "@react-navigation/native";
 import React, { useState, useEffect } from "react";
 import { View, SectionList, StyleSheet } from "react-native";
-import { useStore } from "../utils/useStore";
+import { LAST_RESET_DATE_KEY, useStore } from "../utils/useStore";
 import { ExpenseItem } from "../utils/ExpenseItem";
 import { formatter } from "../utils/formatter";
 import ExpenseItemCard from "../components/ExpenseItemCard";
 import { Text, Button, XStack } from "tamagui";
 import { StatusBar } from "expo-status-bar";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface GroupedExpenseItem {
   totalAmount: number;
@@ -58,6 +59,19 @@ const transformGroupedExpenses = (
   }));
 };
 
+const checkNewMonth = async (navigation: any) => {
+  const lastResetDate = await AsyncStorage.getItem(LAST_RESET_DATE_KEY);
+  const now = new Date();
+
+  if (
+    !lastResetDate ||
+    new Date(lastResetDate).getMonth() !== now.getMonth() ||
+    new Date(lastResetDate).getFullYear() !== now.getFullYear()
+  ) {
+    navigation.navigate("MonthlyBalanceForm");
+  }
+};
+
 export default function HomeScreen({
   navigation,
   route,
@@ -88,6 +102,7 @@ export default function HomeScreen({
   const remainingIncome = balance - totalExpenses;
   useEffect(() => {
     if (isFocused) {
+      checkNewMonth(navigation);
       fetchAndSetExpenses();
     }
   }, [isFocused, fetchExpenses]);
