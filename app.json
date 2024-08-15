@@ -25,6 +25,13 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "scheme": "com.genbu"
-  }
+    "scheme": "com.genbu",
+    "extra": {
+      "eas": {
+        "projectId": "503f5718-fdb4-45af-9bbe-679743b7d1d3"
+      }
+    },
+    "sdkVersion": "51.0.0"
+  },
+  "name": "genbu"
 }

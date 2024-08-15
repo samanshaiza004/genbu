@@ -1,8 +1,9 @@
-import BackgroundFetch from "react-native-background-fetch";
+// import BackgroundFetch from "react-native-background-fetch";
 import { useStore } from "./useStore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LAST_RESET_DATE_KEY } from "./useStore";
-export const configureBackgroundFetch = () => {
+const getData = () => {};
+/* export const configureBackgroundFetch = () => {
   BackgroundFetch.configure(
     {
       minimumFetchInterval: 1440,
@@ -44,5 +45,5 @@ export const configureBackgroundFetch = () => {
     }
   });
 };
-
-configureBackgroundFetch();
+ */
+//configureBackgroundFetch();

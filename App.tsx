@@ -13,7 +13,7 @@ import HomeScreen from "./screens/HomeScreen";
 import Auth from "./components/Auth";
 import IncomeFormScreen from "./screens/IncomeFormScreen";
 import DistributionForm from "./screens/DistributionFormScreen";
-import { configureBackgroundFetch } from "./utils/backgroundFetch";
+// import { configureBackgroundFetch } from "./utils/backgroundFetch";
 
 const tamaguiConfig = createTamagui(config);
 
@@ -28,7 +28,7 @@ export default function App() {
   const [session, setSession] = useState<Session | null>(null);
 
   useEffect(() => {
-    configureBackgroundFetch();
+    // configureBackgroundFetch();
     const getSession = async () => {
       const {
         data: { session },
